@@ -15,13 +15,13 @@
             align-items: center; /* Center everything horizontally */
         }
         .form-container {
-            max-width: 600px;
+            max-width: 600px; /* Adjusted width for the form */
             width: 100%;
             margin-bottom: 20px; /* Added space below the form */
         }
         .label-container {
-            width: 400px;
-            padding: 20px;
+            width: 500px; /* Adjusted width for the label */
+            padding: 25px; /* Adjusted padding */
             border: 1px solid #000; /* Border restored */
             margin-top: 20px;
             margin-bottom: 20px; /* Added space below the label */
@@ -32,54 +32,57 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px; /* Adjusted spacing */
         }
         .label-header h2 {
-            font-size: 24px; /* Increased font size */
+            font-size: 28px; /* Adjusted font size */
             margin: 0;
         }
         .label-section {
-            margin-bottom: 15px;
+            margin-bottom: 18px; /* Adjusted spacing */
             line-height: 1.5; /* Added spacing between text lines */
         }
         .label-section h3 {
-            margin: 0 0 5px 0;
-            font-size: 16px;
+            margin: 0 0 8px 0; /* Adjusted spacing */
+            font-size: 18px; /* Adjusted font size */
         }
         .label-section p {
             margin: 0;
-            font-size: 14px;
+            font-size: 16px; /* Adjusted font size */
         }
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px; /* Adjusted spacing */
         }
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px; /* Adjusted spacing */
+            font-size: 16px; /* Adjusted font size */
         }
         .form-group input {
             width: 100%;
-            padding: 8px;
+            padding: 10px; /* Adjusted padding */
             box-sizing: border-box;
+            font-size: 14px; /* Adjusted font size */
         }
         .button {
-            padding: 10px 20px;
+            padding: 12px 25px; /* Adjusted padding */
             background-color: #28a745;
             color: white;
             border: none;
             cursor: pointer;
             margin-bottom: 20px; /* Added space below the Generate Label button */
+            font-size: 16px; /* Adjusted font size */
         }
         .button:hover {
             background-color: #218838;
         }
         #barcode {
-            width: 150px; /* Rectangle barcode size */
-            height: 80px; /* Adjusted height for rectangle shape */
+            width: 180px; /* Adjusted barcode size */
+            height: 90px; /* Adjusted barcode height */
         }
         .separator {
             border-bottom: 1px solid #000; /* CSS-based separator line */
-            margin: 15px 0; /* Spacing above and below the line */
+            margin: 18px 0; /* Adjusted spacing above and below the line */
         }
 
         /* Hide form, buttons, and header when printing */
@@ -90,7 +93,7 @@
             .label-container {
                 display: block !important; /* Ensure the label is visible when printing */
                 border: 1px solid #000; /* Restore border for printing */
-                padding: 20px; /* Restore padding for printing */
+                padding: 25px; /* Restore padding for printing */
             }
             .separator {
                 border-bottom: 1px solid #000 !important; /* Ensure separator lines are visible when printing */
@@ -206,7 +209,7 @@
         JsBarcode("#barcode", randomBarcode, {
             format: "CODE128", // Barcode format
             width: 2, // Barcode line width
-            height: 60, // Barcode height (adjusted for rectangle shape)
+            height: 70, // Adjusted barcode height
             displayValue: false, // Hide the text below the barcode
         });
 
