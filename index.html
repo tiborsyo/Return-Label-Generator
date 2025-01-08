@@ -47,8 +47,11 @@
             font-size: 18px; /* Adjusted font size */
         }
         .label-section p {
-            margin: 0 0 12px 0; /* Increased bottom margin for more spacing */
+            margin: 0; /* Revert to original spacing for all <p> elements */
             font-size: 16px; /* Adjusted font size */
+        }
+        .package-details p {
+            margin: 0 0 12px 0; /* Increased bottom margin for more spacing */
         }
         .form-group {
             margin-bottom: 18px; /* Adjusted spacing */
@@ -181,10 +184,12 @@
             <h3>Package Details:</h3>
             <p><em>To be manually filled in.</em></p>
         </div>
-        <p>Ship Date: </p>
-        <p>Weight: </p>
-        <p>Carrier: </p>
-        <p>Tracking ID: </p>
+        <div class="package-details">
+            <p>Ship Date: </p>
+            <p>Weight: </p>
+            <p>Carrier: </p>
+            <p>Tracking ID: </p>
+        </div>
     </div>
 </div>
 
