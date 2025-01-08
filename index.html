@@ -94,6 +94,7 @@
                 display: block !important; /* Ensure the label is visible when printing */
                 border: 1px solid #000; /* Restore border for printing */
                 padding: 25px; /* Restore padding for printing */
+                margin: 0 auto; /* Center the label on the printed page */
             }
             .separator {
                 border-bottom: 1px solid #000 !important; /* Ensure separator lines are visible when printing */
@@ -113,29 +114,30 @@
         <!-- Sender Information (Shipped by) -->
         <div class="form-group">
             <label for="senderName">Customer Name:</label> <!-- Updated label -->
-            <input type="text" id="senderName" name="senderName" required>
+            <input type="text" id="senderName" name="senderName" required minlength="2" maxlength="50">
         </div>
         <div class="form-group">
             <label for="senderAddress">Customer Address:</label> <!-- Updated label -->
-            <input type="text" id="senderAddress" name="senderAddress" required>
+            <input type="text" id="senderAddress" name="senderAddress" required minlength="5" maxlength="100">
         </div>
         <div class="form-group">
             <label for="senderCity">Customer City:</label> <!-- Updated label -->
-            <input type="text" id="senderCity" name="senderCity" required>
+            <input type="text" id="senderCity" name="senderCity" required minlength="2" maxlength="50">
         </div>
         <div class="form-group">
             <label for="senderState">Customer State/Province:</label> <!-- Updated label -->
-            <input type="text" id="senderState" name="senderState" required>
+            <input type="text" id="senderState" name="senderState" required minlength="2" maxlength="50">
         </div>
         <div class="form-group">
             <label for="senderZip">Customer ZIP/Postal Code:</label> <!-- Updated label -->
-            <input type="text" id="senderZip" name="senderZip" required>
+            <input type="text" id="senderZip" name="senderZip" required minlength="3" maxlength="10">
         </div>
         <div class="form-group">
             <label for="senderCountry">Customer Country:</label> <!-- Updated label -->
-            <input type="text" id="senderCountry" name="senderCountry" required>
+            <input type="text" id="senderCountry" name="senderCountry" required minlength="2" maxlength="50">
         </div>
-        <button type="button" class="button" onclick="generateLabel()">Generate Label</button>
+        <button type="button" class="button" onclick="generateLabel()" aria-label="Generate Label">Generate Label</button>
+        <button type="reset" class="button" aria-label="Reset Form">Reset Form</button>
     </form>
 </div>
 
@@ -175,7 +177,10 @@
 
     <!-- Package Details -->
     <div class="label-section">
-        <h3>Package Details:</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3>Package Details:</h3>
+            <p><em>To be manually filled in.</em></p>
+        </div>
         <p>Ship Date: </p>
         <p>Weight: </p>
         <p>Carrier Name: </p>
@@ -184,7 +189,7 @@
 </div>
 
 <!-- Print Button -->
-<button type="button" class="button" onclick="printLabel()" style="display:none; margin-top: 20px;" id="printButton">Print Label</button>
+<button type="button" class="button" onclick="printLabel()" style="display:none; margin-top: 20px;" id="printButton" aria-label="Print Label">Print Label</button>
 
 <script>
     function generateLabel() {
@@ -204,9 +209,11 @@
         document.getElementById('outputSenderZip').textContent = senderZip;
         document.getElementById('outputSenderCountry').textContent = senderCountry;
 
-        // Generate a unique barcode
-        const randomBarcode = Math.floor(Math.random() * 1000000000).toString(); // Random number for barcode
-        JsBarcode("#barcode", randomBarcode, {
+        // Generate a unique barcode using a timestamp and random number
+        const timestamp = Date.now();
+        const randomNumber = Math.floor(Math.random() * 1000);
+        const uniqueBarcode = `${timestamp}${randomNumber}`;
+        JsBarcode("#barcode", uniqueBarcode, {
             format: "CODE128", // Barcode format
             width: 2, // Barcode line width
             height: 70, // Adjusted barcode height
