@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKONT Return Label Generator</title>
+    <!-- Include JsBarcode library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .label-container {
+            width: 400px;
+            padding: 20px;
+            border: 1px solid #000; /* Border restored */
+            margin-top: 20px;
+            display: none;
+            position: relative;
+        }
+        .label-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .label-header h2 {
+            font-size: 24px; /* Increased font size */
+            margin: 0;
+        }
+        .label-section {
+            margin-bottom: 15px;
+            line-height: 1.5; /* Added spacing between text lines */
+        }
+        .label-section h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+        .label-section p {
+            margin: 0;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #218838;
+        }
+        #barcode {
+            width: 150px; /* Rectangle barcode size */
+            height: 80px; /* Adjusted height for rectangle shape */
+        }
+        .separator {
+            border-bottom: 1px solid #000; /* CSS-based separator line */
+            margin: 15px 0; /* Spacing above and below the line */
+        }
+
+        /* Hide form, buttons, and header when printing */
+        @media print {
+            .form-container, .button, h1 {
+                display: none; /* Hide form, buttons, and header */
+            }
+            .label-container {
+                display: block !important; /* Ensure the label is visible when printing */
+                border: 1px solid #000; /* Restore border for printing */
+                padding: 20px; /* Restore padding for printing */
+            }
+            .separator {
+                border-bottom: 1px solid #000 !important; /* Ensure separator lines are visible when printing */
+            }
+            #printButton {
+                display: none !important; /* Completely hide the "Print Label" button */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>SKONT Return Label Generator</h1> <!-- Header (hidden when printing) -->
+
+<div class="form-container">
+    <form id="returnForm">
+        <!-- Sender Information (Shipped by) -->
+        <div class="form-group">
+            <label for="senderName">Your Name:</label>
+            <input type="text" id="senderName" name="senderName" required>
+        </div>
+        <div class="form-group">
+            <label for="senderAddress">Your Address:</label>
+            <input type="text" id="senderAddress" name="senderAddress" required>
+        </div>
+        <div class="form-group">
+            <label for="senderCity">Your City:</label>
+            <input type="text" id="senderCity" name="senderCity" required>
+        </div>
+        <div class="form-group">
+            <label for="senderState">Your State/Province:</label>
+            <input type="text" id="senderState" name="senderState" required>
+        </div>
+        <div class="form-group">
+            <label for="senderZip">Your ZIP/Postal Code:</label>
+            <input type="text" id="senderZip" name="senderZip" required>
+        </div>
+        <div class="form-group">
+            <label for="senderCountry">Your Country:</label>
+            <input type="text" id="senderCountry" name="senderCountry" required>
+        </div>
+        <button type="button" class="button" onclick="generateLabel()">Generate Label</button>
+    </form>
+</div>
+
+<!-- Return Label Output -->
+<div id="labelOutput" class="label-container">
+    <!-- Label Header with Barcode -->
+    <div class="label-header">
+        <h2>STANDARD SHIPPING</h2>
+        <svg id="barcode"></svg> <!-- Barcode will be generated here -->
+    </div>
+    <div class="separator"></div> <!-- Separator line -->
+
+    <!-- Sender Information (Shipped by) -->
+    <div class="label-section">
+        <h3>Shipped by:</h3>
+        <p id="outputSenderName"></p>
+        <p id="outputSenderAddress"></p>
+        <p id="outputSenderCity"></p>
+        <p id="outputSenderState"></p>
+        <p id="outputSenderZip"></p>
+        <p id="outputSenderCountry"></p>
+    </div>
+
+    <div class="separator"></div> <!-- Separator line -->
+
+    <!-- Static Return Address (Ship to) -->
+    <div class="label-section">
+        <h3>Ship to:</h3>
+        <p><strong>Mr. Chang</strong></p>
+        <p>3/F, Building 3, Luchang Technology Industrial Park,</p>
+        <p>Guancheng District, Zhengzhou City, Henan Province, China</p>
+        <p>Postal code: 450016</p>
+        <p>Phone: +86-19037170866</p>
+    </div>
+
+    <div class="separator"></div> <!-- Separator line -->
+
+    <!-- Package Details -->
+    <div class="label-section">
+        <h3>Package Details:</h3>
+        <p>Ship Date: </p>
+        <p>Weight: </p>
+        <p>Carrier Name: </p>
+        <p>Tracking ID: </p>
+    </div>
+</div>
+
+<!-- Print Button -->
+<button type="button" class="button" onclick="printLabel()" style="display:none;" id="printButton">Print Label</button>
+
+<script>
+    function generateLabel() {
+        // Get form values (Sender Information)
+        const senderName = document.getElementById('senderName').value;
+        const senderAddress = document.getElementById('senderAddress').value;
+        const senderCity = document.getElementById('senderCity').value;
+        const senderState = document.getElementById('senderState').value;
+        const senderZip = document.getElementById('senderZip').value;
+        const senderCountry = document.getElementById('senderCountry').value;
+
+        // Set output values (Sender Information)
+        document.getElementById('outputSenderName').textContent = senderName;
+        document.getElementById('outputSenderAddress').textContent = senderAddress;
+        document.getElementById('outputSenderCity').textContent = senderCity;
+        document.getElementById('outputSenderState').textContent = senderState;
+        document.getElementById('outputSenderZip').textContent = senderZip;
+        document.getElementById('outputSenderCountry').textContent = senderCountry;
+
+        // Generate a unique barcode
+        const randomBarcode = Math.floor(Math.random() * 1000000000).toString(); // Random number for barcode
+        JsBarcode("#barcode", randomBarcode, {
+            format: "CODE128", // Barcode format
+            width: 2, // Barcode line width
+            height: 60, // Barcode height (adjusted for rectangle shape)
+            displayValue: false, // Hide the text below the barcode
+        });
+
+        // Show the label and print button
+        document.getElementById('labelOutput').style.display = 'block';
+        document.getElementById('printButton').style.display = 'inline-block';
+    }
+
+    function printLabel() {
+        window.print(); // Trigger the print dialog
+    }
+</script>
+
+</body>
+</html>
