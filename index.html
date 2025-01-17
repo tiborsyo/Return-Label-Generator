@@ -47,11 +47,8 @@
             font-size: 18px; /* Adjusted font size */
         }
         .label-section p {
-            margin: 0; /* Revert to original spacing for all <p> elements */
+            margin: 0;
             font-size: 16px; /* Adjusted font size */
-        }
-        .package-details p {
-            margin: 0 0 12px 0; /* Increased bottom margin for more spacing */
         }
         .form-group {
             margin-bottom: 18px; /* Adjusted spacing */
@@ -61,11 +58,16 @@
             margin-bottom: 8px; /* Adjusted spacing */
             font-size: 16px; /* Adjusted font size */
         }
-        .form-group input {
+        .form-group input,
+        .form-group textarea {
             width: 100%;
             padding: 10px; /* Adjusted padding */
             box-sizing: border-box;
             font-size: 14px; /* Adjusted font size */
+        }
+        .form-group textarea {
+            height: 100px; /* Set height for the address textarea */
+            resize: vertical; /* Allow vertical resizing */
         }
         .button {
             padding: 12px 25px; /* Adjusted padding */
@@ -97,7 +99,6 @@
                 display: block !important; /* Ensure the label is visible when printing */
                 border: 1px solid #000; /* Restore border for printing */
                 padding: 25px; /* Restore padding for printing */
-                margin: 0 auto; /* Center the label on the printed page */
             }
             .separator {
                 border-bottom: 1px solid #000 !important; /* Ensure separator lines are visible when printing */
@@ -105,6 +106,21 @@
             #printButton {
                 display: none !important; /* Completely hide the "Print Label" button */
             }
+        }
+
+        /* Package Details Styling */
+        .package-details {
+            margin-top: 20px; /* Added space above the Package Details section */
+        }
+        .package-details p {
+            margin: 10px 0; /* Added spacing between Package Details elements */
+            font-size: 16px; /* Adjusted font size */
+        }
+        .manual-fill {
+            font-size: 10px; /* Smaller font size (10px) */
+            font-style: italic; /* Italic style */
+            margin: 10px 0; /* Added spacing */
+            line-height: 1.2; /* Adjust line height for better readability */
         }
     </style>
 </head>
@@ -114,33 +130,39 @@
 
 <div class="form-container">
     <form id="returnForm">
+        <!-- Paste Complete Address -->
+        <div class="form-group">
+            <label for="completeAddress">Paste Complete Address:</label>
+            <textarea id="completeAddress" name="completeAddress" placeholder="Paste the complete address here"></textarea>
+        </div>
+        <button type="button" class="button" onclick="parseAddress()">Parse Address</button>
+
         <!-- Sender Information (Shipped by) -->
         <div class="form-group">
-            <label for="senderName">Customer Name:</label> <!-- Updated label -->
-            <input type="text" id="senderName" name="senderName" required minlength="2" maxlength="50">
+            <label for="senderName">Customer Name:</label> <!-- Keep "Customer Name" -->
+            <input type="text" id="senderName" name="senderName" required>
         </div>
         <div class="form-group">
             <label for="senderAddress">Address:</label> <!-- Updated label -->
-            <input type="text" id="senderAddress" name="senderAddress" required minlength="5" maxlength="100">
+            <input type="text" id="senderAddress" name="senderAddress" required>
+        </div>
+        <div class="form-group">
+            <label for="senderPostalCode">Postal Code:</label> <!-- Updated label -->
+            <input type="text" id="senderPostalCode" name="senderPostalCode" required>
         </div>
         <div class="form-group">
             <label for="senderCity">City:</label> <!-- Updated label -->
-            <input type="text" id="senderCity" name="senderCity" required minlength="2" maxlength="50">
-        </div>
-        <div class="form-group">
-            <label for="senderState">State/Province:</label> <!-- Updated label -->
-            <input type="text" id="senderState" name="senderState" required minlength="2" maxlength="50">
-        </div>
-        <div class="form-group">
-            <label for="senderZip">ZIP/Postal Code:</label> <!-- Updated label -->
-            <input type="text" id="senderZip" name="senderZip" required minlength="3" maxlength="10">
+            <input type="text" id="senderCity" name="senderCity" required>
         </div>
         <div class="form-group">
             <label for="senderCountry">Country:</label> <!-- Updated label -->
-            <input type="text" id="senderCountry" name="senderCountry" required minlength="2" maxlength="50">
+            <input type="text" id="senderCountry" name="senderCountry" required>
         </div>
-        <button type="button" class="button" onclick="generateLabel()" aria-label="Generate Label">Generate Label</button>
-        <button type="reset" class="button" aria-label="Reset Form">Reset Form</button>
+        <div class="form-group">
+            <label for="senderPhone">Phone:</label> <!-- Updated label -->
+            <input type="text" id="senderPhone" name="senderPhone">
+        </div>
+        <button type="button" class="button" onclick="generateLabel()">Generate Label</button>
     </form>
 </div>
 
@@ -158,10 +180,9 @@
         <h3>Shipped by:</h3>
         <p id="outputSenderName"></p>
         <p id="outputSenderAddress"></p>
-        <p id="outputSenderCity"></p>
-        <p id="outputSenderState"></p>
-        <p id="outputSenderZip"></p>
+        <p id="outputSenderPostalCodeCity"></p> <!-- Combined Postal Code and City -->
         <p id="outputSenderCountry"></p>
+        <p id="outputSenderPhone"></p>
     </div>
 
     <div class="separator"></div> <!-- Separator line -->
@@ -170,55 +191,85 @@
     <div class="label-section">
         <h3>Ship to:</h3>
         <p><strong>Mr. Chang</strong></p>
-        <p>3/F, Building 3, Luchang Technology Industrial Park,</p>
-        <p>Guancheng District, Zhengzhou City, Henan Province, China</p>
-        <p>Postal code: 450016</p>
-        <p>Phone: +86-19037170866</p>
+        <p>3/F, Building 3</p>
+        <p>Luchang Technology Industrial Park</p>
+        <p>Guancheng District, Zhengzhou City</p>
+        <p>Henan Province 450016</p>
+        <p>China</p>
+        <p>+86-19037170866</p>
     </div>
 
     <div class="separator"></div> <!-- Separator line -->
 
     <!-- Package Details -->
-    <div class="label-section">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>Package Details:</h3>
-            <p><em>To be manually filled in.</em></p>
-        </div>
-        <div class="package-details">
-            <p>Ship Date: </p>
-            <p>Weight: </p>
-            <p>Carrier: </p>
-            <p>Tracking ID: </p>
-        </div>
+    <div class="label-section package-details">
+        <h3>Package Details:</h3>
+        <p class="manual-fill">To be manually filled in.</p> <!-- Added sentence with smaller font (10px) and italic style -->
+        <p>Ship Date: </p>
+        <p>Weight: </p>
+        <p>Carrier: </p>
+        <p>Tracking ID: </p>
     </div>
 </div>
 
 <!-- Print Button -->
-<button type="button" class="button" onclick="printLabel()" style="display:none; margin-top: 20px;" id="printButton" aria-label="Print Label">Print Label</button>
+<button type="button" class="button" onclick="printLabel()" style="display:none; margin-top: 20px;" id="printButton">Print Label</button>
 
 <script>
+    function parseAddress() {
+        const completeAddress = document.getElementById('completeAddress').value;
+        const lines = completeAddress.split('\n').filter(line => line.trim() !== '');
+
+        // Parse the address based on the Norwegian format
+        if (lines.length >= 3) {
+            // Line 1: Name
+            document.getElementById('senderName').value = lines[0].trim();
+
+            // Line 2: Street Address (Street Name + House Number)
+            document.getElementById('senderAddress').value = lines[1].trim();
+
+            // Line 3: Postal Code + City
+            const postalCodeCity = lines[2].trim().split(/\s+/); // Split by whitespace
+            if (postalCodeCity.length >= 2) {
+                document.getElementById('senderPostalCode').value = postalCodeCity[0].trim();
+                document.getElementById('senderCity').value = postalCodeCity.slice(1).join(' ').trim();
+            }
+
+            // Line 4: Country (optional)
+            if (lines.length > 3) {
+                document.getElementById('senderCountry').value = lines[3].trim();
+            } else {
+                document.getElementById('senderCountry').value = 'Norway'; // Default to Norway
+            }
+
+            // Line 5: Phone (optional)
+            if (lines.length > 4) {
+                document.getElementById('senderPhone').value = lines[4].trim();
+            }
+        } else {
+            alert('Please paste a valid Norwegian address in the correct format.');
+        }
+    }
+
     function generateLabel() {
         // Get form values (Sender Information)
         const senderName = document.getElementById('senderName').value;
         const senderAddress = document.getElementById('senderAddress').value;
+        const senderPostalCode = document.getElementById('senderPostalCode').value;
         const senderCity = document.getElementById('senderCity').value;
-        const senderState = document.getElementById('senderState').value;
-        const senderZip = document.getElementById('senderZip').value;
         const senderCountry = document.getElementById('senderCountry').value;
+        const senderPhone = document.getElementById('senderPhone').value;
 
         // Set output values (Sender Information)
         document.getElementById('outputSenderName').textContent = senderName;
         document.getElementById('outputSenderAddress').textContent = senderAddress;
-        document.getElementById('outputSenderCity').textContent = senderCity;
-        document.getElementById('outputSenderState').textContent = senderState;
-        document.getElementById('outputSenderZip').textContent = senderZip;
+        document.getElementById('outputSenderPostalCodeCity').textContent = `${senderPostalCode} ${senderCity}`; // Combined Postal Code and City
         document.getElementById('outputSenderCountry').textContent = senderCountry;
+        document.getElementById('outputSenderPhone').textContent = senderPhone;
 
-        // Generate a unique barcode using a timestamp and random number
-        const timestamp = Date.now();
-        const randomNumber = Math.floor(Math.random() * 1000);
-        const uniqueBarcode = `${timestamp}${randomNumber}`;
-        JsBarcode("#barcode", uniqueBarcode, {
+        // Generate a unique barcode
+        const randomBarcode = Math.floor(Math.random() * 1000000000).toString(); // Random number for barcode
+        JsBarcode("#barcode", randomBarcode, {
             format: "CODE128", // Barcode format
             width: 2, // Barcode line width
             height: 70, // Adjusted barcode height
