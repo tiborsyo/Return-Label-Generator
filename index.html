@@ -78,6 +78,12 @@
             margin-bottom: 20px; /* Added space below the Generate Label button */
             font-size: 16px; /* Adjusted font size */
         }
+        .button.clear {
+            background-color: #dc3545; /* Red color for the Clear button */
+        }
+        .button.clear:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
         .button:hover {
             background-color: #218838;
         }
@@ -147,6 +153,10 @@
             <input type="text" id="senderAddress" name="senderAddress" required>
         </div>
         <div class="form-group">
+            <label for="senderAddress2">Address 2:</label> <!-- New Address 2 field -->
+            <input type="text" id="senderAddress2" name="senderAddress2">
+        </div>
+        <div class="form-group">
             <label for="senderPostalCode">Postal Code:</label> <!-- Updated label -->
             <input type="text" id="senderPostalCode" name="senderPostalCode" required>
         </div>
@@ -162,7 +172,10 @@
             <label for="senderPhone">Phone:</label> <!-- Updated label -->
             <input type="text" id="senderPhone" name="senderPhone">
         </div>
-        <button type="button" class="button" onclick="generateLabel()">Generate Label</button>
+        <div class="button-group">
+            <button type="button" class="button" onclick="generateLabel()">Generate Label</button>
+            <button type="button" class="button clear" onclick="clearFields()">Clear Fields</button> <!-- New Clear Fields button -->
+        </div>
     </form>
 </div>
 
@@ -180,6 +193,7 @@
         <h3>Shipped by:</h3>
         <p id="outputSenderName"></p>
         <p id="outputSenderAddress"></p>
+        <p id="outputSenderAddress2"></p> <!-- New Address 2 output -->
         <p id="outputSenderPostalCodeCity"></p> <!-- Combined Postal Code and City -->
         <p id="outputSenderCountry"></p>
         <p id="outputSenderPhone"></p>
@@ -220,6 +234,9 @@
         const completeAddress = document.getElementById('completeAddress').value;
         const lines = completeAddress.split('\n').filter(line => line.trim() !== '');
 
+        // Reset Address 2 field
+        document.getElementById('senderAddress2').value = '';
+
         // Parse the address based on the Norwegian format
         if (lines.length >= 3) {
             // Line 1: Name
@@ -228,23 +245,53 @@
             // Line 2: Street Address (Street Name + House Number)
             document.getElementById('senderAddress').value = lines[1].trim();
 
-            // Line 3: Postal Code + City
-            const postalCodeCity = lines[2].trim().split(/\s+/); // Split by whitespace
-            if (postalCodeCity.length >= 2) {
-                document.getElementById('senderPostalCode').value = postalCodeCity[0].trim();
-                document.getElementById('senderCity').value = postalCodeCity.slice(1).join(' ').trim();
-            }
+            // Check if the third line is a secondary address or postal code + city
+            const thirdLine = lines[2].trim();
+            const isPostalCodeCity = /^\d{4}\s/.test(thirdLine); // Check if the line starts with a 4-digit postal code
 
-            // Line 4: Country (optional)
-            if (lines.length > 3) {
-                document.getElementById('senderCountry').value = lines[3].trim();
+            if (!isPostalCodeCity) {
+                // Line 3: Secondary Address (e.g., H402, 4.etg)
+                document.getElementById('senderAddress2').value = thirdLine;
+
+                // Line 4: Postal Code + City
+                if (lines.length >= 4) {
+                    const postalCodeCity = lines[3].trim().split(/\s+/); // Split by whitespace
+                    if (postalCodeCity.length >= 2) {
+                        document.getElementById('senderPostalCode').value = postalCodeCity[0].trim();
+                        document.getElementById('senderCity').value = postalCodeCity.slice(1).join(' ').trim();
+                    }
+                }
+
+                // Line 5: Country (optional)
+                if (lines.length > 4) {
+                    document.getElementById('senderCountry').value = lines[4].trim();
+                } else {
+                    document.getElementById('senderCountry').value = 'Norway'; // Default to Norway
+                }
+
+                // Line 6: Phone (optional)
+                if (lines.length > 5) {
+                    document.getElementById('senderPhone').value = lines[5].trim();
+                }
             } else {
-                document.getElementById('senderCountry').value = 'Norway'; // Default to Norway
-            }
+                // Line 3: Postal Code + City
+                const postalCodeCity = thirdLine.split(/\s+/); // Split by whitespace
+                if (postalCodeCity.length >= 2) {
+                    document.getElementById('senderPostalCode').value = postalCodeCity[0].trim();
+                    document.getElementById('senderCity').value = postalCodeCity.slice(1).join(' ').trim();
+                }
 
-            // Line 5: Phone (optional)
-            if (lines.length > 4) {
-                document.getElementById('senderPhone').value = lines[4].trim();
+                // Line 4: Country (optional)
+                if (lines.length > 3) {
+                    document.getElementById('senderCountry').value = lines[3].trim();
+                } else {
+                    document.getElementById('senderCountry').value = 'Norway'; // Default to Norway
+                }
+
+                // Line 5: Phone (optional)
+                if (lines.length > 4) {
+                    document.getElementById('senderPhone').value = lines[4].trim();
+                }
             }
         } else {
             alert('Please paste a valid Norwegian address in the correct format.');
@@ -255,6 +302,7 @@
         // Get form values (Sender Information)
         const senderName = document.getElementById('senderName').value;
         const senderAddress = document.getElementById('senderAddress').value;
+        const senderAddress2 = document.getElementById('senderAddress2').value;
         const senderPostalCode = document.getElementById('senderPostalCode').value;
         const senderCity = document.getElementById('senderCity').value;
         const senderCountry = document.getElementById('senderCountry').value;
@@ -263,6 +311,7 @@
         // Set output values (Sender Information)
         document.getElementById('outputSenderName').textContent = senderName;
         document.getElementById('outputSenderAddress').textContent = senderAddress;
+        document.getElementById('outputSenderAddress2').textContent = senderAddress2; // New Address 2 output
         document.getElementById('outputSenderPostalCodeCity').textContent = `${senderPostalCode} ${senderCity}`; // Combined Postal Code and City
         document.getElementById('outputSenderCountry').textContent = senderCountry;
         document.getElementById('outputSenderPhone').textContent = senderPhone;
@@ -279,6 +328,22 @@
         // Show the label and print button
         document.getElementById('labelOutput').style.display = 'block';
         document.getElementById('printButton').style.display = 'inline-block';
+    }
+
+    function clearFields() {
+        // Clear all form fields
+        document.getElementById('completeAddress').value = '';
+        document.getElementById('senderName').value = '';
+        document.getElementById('senderAddress').value = '';
+        document.getElementById('senderAddress2').value = '';
+        document.getElementById('senderPostalCode').value = '';
+        document.getElementById('senderCity').value = '';
+        document.getElementById('senderCountry').value = '';
+        document.getElementById('senderPhone').value = '';
+
+        // Hide the label and print button
+        document.getElementById('labelOutput').style.display = 'none';
+        document.getElementById('printButton').style.display = 'none';
     }
 
     function printLabel() {
